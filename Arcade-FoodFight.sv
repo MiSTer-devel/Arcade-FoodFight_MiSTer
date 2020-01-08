@@ -87,13 +87,14 @@ localparam CONF_STR = {
 	"H0O1,Aspect Ratio,Original,Wide;",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
-	"O8,Pseudo Analog Stick 1P,Off,On;",
-	"O9,Pseudo Analog Stick 2P,Off,On;",
+	"O8,Control Player 1,Analog,D-Pad;",
+	"O9,Control Player 2,Analog,D-Pad;",
 	"-;",
 	"OA,Self-Test,Off,On;",
 	"-;",
 	"R0,Reset;",
 	"J1,Throw,Start 1P,Start 2P,Coin;",
+	"jn,A,Start,Select,R;",
 	"V,v",`BUILD_DATE
 };
 
@@ -277,8 +278,8 @@ HVGEN hvgen
 assign ce_vid = PCLK;
 
 
-wire [15:0] AOUT;
-assign AUDIO_L = AOUT;
+wire [7:0] AOUT;
+assign AUDIO_L = {AOUT,AOUT};
 assign AUDIO_R = AUDIO_L;
 assign AUDIO_S = 0; // unsigned PCM
 
@@ -335,25 +336,25 @@ module HVGEN
 reg [8:0] hcnt = 0;
 reg [8:0] vcnt = 0;
 
-assign HPOS = hcnt-16;
+assign HPOS = hcnt-5'd16;
 assign VPOS = vcnt;
 
 always @(posedge PCLK) begin
 	case (hcnt)
-		 15: begin HBLK <= 0; hcnt <= hcnt+1; end
-		272: begin HBLK <= 1; hcnt <= hcnt+1; end
-		311: begin HSYN <= 0; hcnt <= hcnt+1; end
-		342: begin HSYN <= 1; hcnt <= 471;    end
+		 15: begin HBLK <= 0; hcnt <= hcnt+1'd1; end
+		272: begin HBLK <= 1; hcnt <= hcnt+1'd1; end
+		311: begin HSYN <= 0; hcnt <= hcnt+1'd1; end
+		342: begin HSYN <= 1; hcnt <= 471;       end
 		511: begin hcnt <= 0;
 			case (vcnt)
-				223: begin VBLK <= 1; vcnt <= vcnt+1; end
-				235: begin VSYN <= 0; vcnt <= vcnt+1; end
-				242: begin VSYN <= 1; vcnt <= 492;    end
-				511: begin VBLK <= 0; vcnt <= 0;      end
-				default: vcnt <= vcnt+1;
+				223: begin VBLK <= 1; vcnt <= vcnt+1'd1; end
+				235: begin VSYN <= 0; vcnt <= vcnt+1'd1; end
+				242: begin VSYN <= 1; vcnt <= 492;       end
+				511: begin VBLK <= 0; vcnt <= 0;         end
+				default: vcnt <= vcnt+1'd1;
 			endcase
 		end
-		default: hcnt <= hcnt+1;
+		default: hcnt <= hcnt+1'd1;
 	endcase
 	oRGB <= (HBLK|VBLK) ? 12'h0 : iRGB;
 end
@@ -377,9 +378,9 @@ module PseudoAnaStk
 
 reg  signed [9:0] StkX = 0, StkY = 0;
 
-wire signed [9:0] DELT =   15;
-wire signed [9:0] PLIM =  120;
-wire signed [9:0] MLIM = -120;
+wire signed [9:0] DELT = 15;
+wire signed [9:0] PLIM = 120;
+wire signed [9:0] MLIM = -10'd120;
 
 reg [8:0] pPV;
 always @(posedge CLK) begin
@@ -400,8 +401,8 @@ always @(posedge CLK) begin
 	pPV <= PV;
 end
 
-wire [7:0] oStkX = StkX + 127;
-wire [7:0] oStkY = StkY + 127;
+wire [7:0] oStkX = StkX + 8'd127;
+wire [7:0] oStkY = StkY + 8'd127;
 
 assign AX = oStkX;
 assign AY = oStkY;

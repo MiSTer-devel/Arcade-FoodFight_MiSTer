@@ -2,7 +2,7 @@
 
 module SOUND
 (
-	output [15:0]	SOUT,
+	output  [7:0]	SOUT,
 	input   [7:0]	DSW,
 
 	input				rst,
@@ -31,7 +31,7 @@ BusCycle68k8B bc8(rst,cl,axs,E,dtack);
 
 // Pokey x3
 wire [7:0] rdt1,rdt2,rdt3;
-wire [7:0] snd1,snd2,snd3;
+wire [5:0] snd1,snd2,snd3;
 PokeyW P1(.clk(E),.rst(rst),.ad(ad),.cs(cs_pokey1),.we(rw),.wd(od),.rd(rdt1),.snd(snd1),.p(DSW));
 PokeyW P2(.clk(E),.rst(rst),.ad(ad),.cs(cs_pokey2),.we(rw),.wd(od),.rd(rdt2),.snd(snd2),.p(0));
 PokeyW P3(.clk(E),.rst(rst),.ad(ad),.cs(cs_pokey3),.we(rw),.wd(od),.rd(rdt3),.snd(snd3),.p(0));
@@ -44,8 +44,7 @@ assign id = cs_pokey1 ? {8'h0,rdt1} :
 				16'h0;
 
 // Sound Out
-wire [9:0] snd = snd1+snd2+snd3;
-assign SOUT = {snd,6'h0};
+assign SOUT = {2'b00,snd1}+{2'b00,snd2}+{2'b00,snd3};
 
 endmodule
 
@@ -102,7 +101,7 @@ module PokeyW
 	input  [7:0]	wd,
 	output [7:0]	rd,
 
-	output [7:0]	snd,
+	output [5:0]	snd,
 
 	input  [7:0]	p
 );
@@ -125,7 +124,7 @@ pokey core (
 	.CHANNEL_3_OUT(ch3)
 );
 
-assign snd = ch0+ch1+ch2+ch3;
+assign snd = {2'b00,ch0}+{2'b00,ch1}+{2'b00,ch2}+{2'b00,ch3};
 
 endmodule
 
