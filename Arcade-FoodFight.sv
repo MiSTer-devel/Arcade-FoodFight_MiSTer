@@ -87,8 +87,8 @@ localparam CONF_STR = {
 	"H0O1,Aspect Ratio,Original,Wide;",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
-	"O8,Control Player 1,Analog,D-Pad;",
-	"O9,Control Player 2,Analog,D-Pad;",
+	"O8,Control Player 1,D-Pad,Analog;",
+	"O9,Control Player 2,D-Pad,Analog;",
 	"-;",
 	"OA,Self-Test,Off,On;",
 	"-;",
@@ -100,8 +100,8 @@ localparam CONF_STR = {
 
 wire bCabinet = 1'b0;
 
-wire bPAna0 = status[8];
-wire bPAna1 = status[9];
+wire bPAna0 = ~status[8];
+wire bPAna1 = ~status[9];
 
 wire bSelfTst = status[10];
 
